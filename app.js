@@ -1,33 +1,15 @@
 var express = require("express"),
     app = express(),
     bodyParser = require("body-parser"),
-    mongoose = require("mongoose");
+    mongoose = require("mongoose"),
+    Campground = require("./models/campground"),
+    seedDB = require("./seeds");
 
 
+seedDB();
 mongoose.connect("mongodb://localhost/yelp_camp");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
-
-//Schema setup
-var campgroundSchema = new mongoose.Schema({
-    name: String,
-    image: String
-});
-
-var Campground = mongoose.model("Campground", campgroundSchema);
-
-// Campground.create({
-//         name: "Granite Creek",
-//         image: "https://img.sunset02.com/sites/default/files/styles/4_3_horizontal_-_1200x900/public/image/2016/09/main/camping-with-kids-lake-alpine-sierra-nevada-family-night-out-0514.jpg?itok=ocbTWgVV"
-//     },
-//     function(err, campground) {
-//         if (err) {
-//             console.log(err);
-//         } else {
-//             console.log("Newly created campground");
-//             console.log(campground);
-//         }
-//     });
 
 
 app.get("/", function(req, res) {
@@ -41,9 +23,9 @@ app.get("/campgrounds", function(req, res) {
         if (err) {
             console.log(err);
         } else {
-            res.render("campgrounds", { campgrounds: allCampgrounds });
+            res.render("index", { campgrounds: allCampgrounds });
         }
-    });
+    })
 });
 
 //CREATE - add new campground to DB
@@ -51,7 +33,8 @@ app.post("/campgrounds", function(req, res) {
     // get data from form and add to campgrounds array
     var name = req.body.name;
     var image = req.body.image;
-    var newCampground = { name: name, image: image }
+    var desc = req.body.description;
+    var newCampground = { name: name, image: image, description: desc }
         // create a new campground and save to db
     Campground.create(newCampground, function(err, newlyCreated) {
         if (err) {
@@ -65,9 +48,23 @@ app.post("/campgrounds", function(req, res) {
 
 //NEW - show form to create campground
 app.get("/campgrounds/new", function(req, res) {
-    res.render("new.ejs");
+    res.render("new");
 });
 
+//SHOW - shows more info about one campground
+app.get("/campgrounds/:id", function(req, res) {
+    //find the campground with provided id
+    Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(foundCampground);
+
+            //render show template with that campground
+            res.render("show", { campground: foundCampground });
+        }
+    });
+});
 
 app.listen(3000, function(req, res) {
     console.log("The App has started");
