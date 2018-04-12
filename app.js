@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 var express = require("express"),
     app = express(),
     bodyParser = require("body-parser"),
@@ -9,7 +11,7 @@ var express = require("express"),
     Campground = require("./models/campground"),
     Comment = require("./models/comment"),
     User = require("./models/user"),
-    seedDB = require("./seeds")
+    seedDB = require("./seeds");
 
 // Requiring routes    
 var commentRoutes = require("./routes/comments"),
@@ -23,6 +25,8 @@ app.use(express.static(__dirname + "/public"));
 app.use(methodOverride("_method"));
 app.use(flash());
 // seedDB(); //seed the database
+
+app.locals.moment = require("moment");
 
 // PASSPORT CONFIG
 app.use(require("express-session")({
