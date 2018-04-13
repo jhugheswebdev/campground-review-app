@@ -55,6 +55,6 @@ app.use("/campgrounds/:id/comments", commentRoutes);
 // ===========================================
 // LOCAL SERVER FOR DEVELOPMENT
 // ===========================================
-app.listen(process.env.PORT || 3000, function(req, res) {
-    console.log("The App has started");
+app.listen(process.env.PORT, process.env.IP, function() {
+    console.log("The YelpCamp Server Has Started!");
 });
